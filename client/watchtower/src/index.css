@@ -2,37 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-/* === GLOBAL SCROLLBAR THEME WITH SPACING === */
-::-webkit-scrollbar {
-  width: 12px;                         /* slightly thicker for glow */
-  margin-right: 6px;                   /* creates space between scrollbar & container edge */
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 6%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 142 76% 36%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 142 76% 36%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5% 18%;
+    --input: 240 5% 18%;
+    --ring: 142 76% 36%;
+    --radius: 0.75rem;
+    
+    /* Custom colors for prediction markets */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --danger: 0 72% 51%;
+    --danger-foreground: 0 0% 100%;
+    --warning: 45 93% 47%;
+    --warning-foreground: 0 0% 0%;
+    --neutral: 240 5% 65%;
+    --neutral-foreground: 0 0% 98%;
+    
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 142 76% 36%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 142 76% 36%;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+  }
 }
 
-/* Scrollbar Track */
-::-webkit-scrollbar-track {
-  background: #0f172a;
-  border-left: 1px solid #243049;
-  border-radius: 10px;
-  margin: 6px 0;                       /* top and bottom margin inside track */
-}
+@layer base {
+  * {
+    @apply border-border;
+  }
 
-/* Scrollbar Thumb */
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #3CF2FF44, #3CF2FF88);
-  border-radius: 10px;
-  border: 1px solid #3CF2FFaa;
-  box-shadow: 0 0 8px #3CF2FF55;
-  margin: 2px;                         /* adds space between thumb and track edges */
-}
-
-/* Hover State */
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #3CF2FF88, #3CF2FFcc);
-  box-shadow: 0 0 12px #3CF2FFaa;
-}
-
-/* Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #3CF2FF88 #0f172a;
+  body {
+    @apply bg-background text-foreground;
+  }
 }
