@@ -8,6 +8,12 @@ import { TrendingUp, Target, AlertCircle, BarChart3, Shield } from 'lucide-react
 import { getRecommendationType } from '@/utils/csvParser';
 import Papa from 'papaparse';
 import { CustomJobForm } from '@/components/CustomJob';
+import { createClient } from '@supabase/supabase-js';
+
+// Initialize Supabase client
+const SUPABASE_URL = "https://uxrdywchpcwljsteomtn.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4cmR5d2NocGN3bGpzdGVvbXRuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjEyMDUzMywiZXhwIjoyMDc3Njk2NTMzfQ.jaQvrFqm4wTOyS_XxaUzCM1REtEyh-9Sj1EDFNjKJ8g";
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const POLL_INTERVAL = 5000; // 5 seconds
 
@@ -17,49 +23,63 @@ const Index = () => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [currentJobId, setCurrentJobId] = useState<string | null>(null);
 
-  const fetchLatestReport = async (isInitial = false) => {
-    if (isInitial) setInitialLoading(true);
-    try {
-      const res = await fetch("https://sentinelai-xnfh.onrender.com/jobs");
-      const jobs = await res.json();
+const fetchLatestReport = async (isInitial = false) => {
+  if (isInitial) setInitialLoading(true);
+  try {
+    // Step 1: Fetch completed jobs directly from Supabase
+    const { data: jobs, error } = await supabase
+      .from('pipeline_jobs')
+      .select('*')
+      .eq('status', 'completed')
+      .not('storage_path', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(1);
 
-      const latest = jobs.find((j: any) => j.status === "completed" && j.storage_path);
-      if (!latest) {
-        setMarkets([]);
-        if (isInitial) setInitialLoading(false);
-        return;
-      }
-
-      const publicUrl = `https://uxrdywchpcwljsteomtn.supabase.co/storage/v1/object/public/${latest.storage_path}`;
-      const csvResponse = await fetch(publicUrl);
-      const csvText = await csvResponse.text();
-
-      const parsed = Papa.parse(csvText, { header: true });
-      const parsedMarkets = (parsed.data as Market[])
-        .filter(m => m.Edge != null && !isNaN(m.Edge))
-        .map(m => ({
-          ...m,
-          Edge: parseFloat(m.Edge as any),
-          Confidence: parseFloat(m.Confidence as any),
-          Kelly_Fraction: parseFloat(m.Kelly_Fraction as any),
-          Model_Estimate: parseFloat(m.Model_Estimate as any),
-          Market_Price: parseFloat(m.Market_Price as any)
-        }));
-
-      setMarkets(parsedMarkets);
-    } catch (err) {
-      console.error("Error loading latest report:", err);
-    } finally {
+    if (error) throw error;
+    if (!jobs || jobs.length === 0) {
+      setMarkets([]);
       if (isInitial) setInitialLoading(false);
+      return;
     }
-  };
+
+    const latest = jobs[0];
+
+    // Step 2: Fetch CSV from Supabase storage
+    const { data: csvData, error: storageError } = await supabase
+      .storage
+      .from('sentinel_reports')
+      .download(latest.storage_path.replace('sentinel_reports/', ''));
+
+    if (storageError) throw storageError;
+
+    const csvText = await csvData.text();
+    const parsed = Papa.parse(csvText, { header: true });
+    const parsedMarkets = (parsed.data as Market[])
+      .filter(m => m.Edge != null && !isNaN(m.Edge))
+      .map(m => ({
+        ...m,
+        Edge: parseFloat(m.Edge as any),
+        Confidence: parseFloat(m.Confidence as any),
+        Kelly_Fraction: parseFloat(m.Kelly_Fraction as any),
+        Model_Estimate: parseFloat(m.Model_Estimate as any),
+        Market_Price: parseFloat(m.Market_Price as any)
+      }));
+
+    setMarkets(parsedMarkets);
+  } catch (err) {
+    console.error("Error loading latest report:", err);
+  } finally {
+    if (isInitial) setInitialLoading(false);
+  }
+};
 
   // initial fetch + polling
-  useEffect(() => {
-    fetchLatestReport(true);
-    const interval = setInterval(() => fetchLatestReport(false), POLL_INTERVAL);
-    return () => clearInterval(interval);
-  }, []);
+useEffect(() => {
+  fetchLatestReport(true);
+  const interval = setInterval(() => fetchLatestReport(false), POLL_INTERVAL);
+  return () => clearInterval(interval);
+}, []);
+
 
   // Calculate statistics
   const stats = useMemo(() => {
