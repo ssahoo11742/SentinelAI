@@ -1,24 +1,48 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Target, Clock, BarChart3 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 interface CustomJobFormProps {
+  currentJobId: string | null;
   onJobStarted: (jobId: string) => void;
+  onJobCompleted: () => void;
 }
 
-export const CustomJobForm = ({ onJobStarted }: CustomJobFormProps) => {
+export const CustomJobForm = ({ currentJobId, onJobStarted, onJobCompleted }: CustomJobFormProps) => {
   const [open, setOpen] = useState(false);
   const [platforms, setPlatforms] = useState("manifold,polymarket");
-  const [minLiquidity, setMinLiquidity] = useState(500);
-  const [maxHours, setMaxHours] = useState(720);
+  const [minLiquidity, setMinLiquidity] = useState(1550);
+  const [maxHours, setMaxHours] = useState(30000);
   const [extraArgs, setExtraArgs] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Poll for job completion
+  useEffect(() => {
+    if (!currentJobId) return;
+
+    const checkJobStatus = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/jobs");
+        const jobs = await res.json();
+        const job = jobs.find((j: any) => j.id === currentJobId);
+        
+        if (job && (job.status === "completed" || job.status === "failed")) {
+          onJobCompleted();
+        }
+      } catch (err) {
+        console.error("Error checking job status:", err);
+      }
+    };
+
+    const interval = setInterval(checkJobStatus, 2000);
+    return () => clearInterval(interval);
+  }, [currentJobId, onJobCompleted]);
 
   const handleSubmit = async () => {
-    setLoading(true);
+    setSubmitting(true);
     try {
       const payload = {
         platforms: platforms.split(",").map((p) => p.trim()),
@@ -40,14 +64,20 @@ export const CustomJobForm = ({ onJobStarted }: CustomJobFormProps) => {
     } catch (err) {
       console.error("Failed to start job:", err);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} variant="secondary">
-        Run Custom Job
+      <Button 
+        onClick={() => setOpen(true)} 
+        variant="secondary"
+        disabled={!!currentJobId}
+        className="gap-2"
+      >
+        {currentJobId && <Loader2 className="w-4 h-4 animate-spin" />}
+        {currentJobId ? "Job Running..." : "Run Custom Job"}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -91,10 +121,11 @@ export const CustomJobForm = ({ onJobStarted }: CustomJobFormProps) => {
             </div>
 
             <div className="flex gap-3 pt-2">
-              <Button className="flex-1" onClick={handleSubmit} disabled={loading}>
-                {loading ? "Starting..." : "Start Job"}
+              <Button className="flex-1 gap-2" onClick={handleSubmit} disabled={submitting}>
+                {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                {submitting ? "Starting..." : "Start Job"}
               </Button>
-              <Button variant="outline" className="flex-1" onClick={() => setOpen(false)}>
+              <Button variant="outline" className="flex-1" onClick={() => setOpen(false)} disabled={submitting}>
                 Cancel
               </Button>
             </div>

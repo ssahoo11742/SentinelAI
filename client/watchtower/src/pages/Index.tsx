@@ -14,11 +14,11 @@ const POLL_INTERVAL = 5000; // 5 seconds
 const Index = () => {
   const [markets, setMarkets] = useState<Market[]>([]);
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [loading, setLoading] = useState(true);
-  const [refreshTrigger, setRefreshTrigger] = useState(0); // to trigger polling after job finishes
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
 
-  const fetchLatestReport = async () => {
-    setLoading(true);
+  const fetchLatestReport = async (isInitial = false) => {
+    if (isInitial) setInitialLoading(true);
     try {
       const res = await fetch("http://localhost:8000/jobs");
       const jobs = await res.json();
@@ -26,7 +26,7 @@ const Index = () => {
       const latest = jobs.find((j: any) => j.status === "completed" && j.storage_path);
       if (!latest) {
         setMarkets([]);
-        setLoading(false);
+        if (isInitial) setInitialLoading(false);
         return;
       }
 
@@ -50,18 +50,18 @@ const Index = () => {
     } catch (err) {
       console.error("Error loading latest report:", err);
     } finally {
-      setLoading(false);
+      if (isInitial) setInitialLoading(false);
     }
   };
 
   // initial fetch + polling
   useEffect(() => {
-    fetchLatestReport();
-    const interval = setInterval(fetchLatestReport, POLL_INTERVAL);
+    fetchLatestReport(true);
+    const interval = setInterval(() => fetchLatestReport(false), POLL_INTERVAL);
     return () => clearInterval(interval);
-  }, [refreshTrigger]);
+  }, []);
 
-  // Statistics calculation
+  // Calculate statistics
   const stats = useMemo(() => {
     const totalMarkets = markets.length;
     const avgEdge = markets.reduce((sum, m) => sum + m.Edge, 0) / totalMarkets || 0;
@@ -78,24 +78,33 @@ const Index = () => {
     };
   }, [markets]);
 
+  // Filter counts for filter buttons
   const filterCounts = useMemo(() => {
-    const counts: Record<string, number> = { all: markets.length };
+    const counts: Record<string, number> = {
+      all: markets.length,
+    };
+
     markets.forEach(market => {
       const type = getRecommendationType(market.Recommendation);
       counts[type] = (counts[type] || 0) + 1;
     });
+
     return counts;
   }, [markets]);
 
+  // Filtered markets
   const filteredMarkets = useMemo(() => {
     if (selectedFilter === 'all') return markets;
-    return markets.filter(market => getRecommendationType(market.Recommendation) === selectedFilter);
+    
+    return markets.filter(market => 
+      getRecommendationType(market.Recommendation) === selectedFilter
+    );
   }, [markets, selectedFilter]);
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Loading Overlay */}
-      {loading && (
+      {/* Loading Overlay - Only on initial load */}
+      {initialLoading && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
           <div className="text-white text-lg font-semibold">Loading markets...</div>
         </div>
@@ -118,34 +127,67 @@ const Index = () => {
 
           {/* Custom Job Form Button */}
           <CustomJobForm
+            currentJobId={currentJobId}
             onJobStarted={(jobId) => {
-              console.log("Started job:", jobId);
-              // trigger refresh/polling immediately after job start
-              setRefreshTrigger(prev => prev + 1);
+              setCurrentJobId(jobId);
+            }}
+            onJobCompleted={() => {
+              setCurrentJobId(null);
+              fetchLatestReport(false);
             }}
           />
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
+
         {/* Stats Grid */}
         {markets.length > 0 && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatsCard title="Total Markets" value={stats.totalMarkets} icon={BarChart3} subtitle="Analyzed opportunities" />
-              <StatsCard title="Avg Edge" value={stats.avgEdge} icon={TrendingUp} subtitle="Potential profit margin" trend="up" />
-              <StatsCard title="High Confidence" value={stats.highConfidence} icon={Target} subtitle=">60% confidence" />
-              <StatsCard title="Strong Buys" value={stats.strongBuys} icon={AlertCircle} subtitle="Highest conviction" trend="up" />
+              <StatsCard
+                title="Total Markets"
+                value={stats.totalMarkets}
+                icon={BarChart3}
+                subtitle="Analyzed opportunities"
+              />
+              <StatsCard
+                title="Avg Edge"
+                value={stats.avgEdge}
+                icon={TrendingUp}
+                subtitle="Potential profit margin"
+                trend="up"
+              />
+              <StatsCard
+                title="High Confidence"
+                value={"High"}
+                icon={Target}
+                subtitle=">60% confidence"
+              />
+              <StatsCard
+                title="Strong Buys"
+                value={stats.strongBuys}
+                icon={AlertCircle}
+                subtitle="Highest conviction"
+                trend="up"
+              />
             </div>
 
             {/* Filters */}
-            <FilterBar selectedFilter={selectedFilter} onFilterChange={setSelectedFilter} counts={filterCounts} />
+            <FilterBar
+              selectedFilter={selectedFilter}
+              onFilterChange={setSelectedFilter}
+              counts={filterCounts}
+            />
+
 
             {/* Markets Grid */}
             <div>
               <div className="mb-4">
                 <h2 className="text-xl font-semibold">
-                  {selectedFilter === 'all' ? 'All Market Opportunities' : `${selectedFilter} Opportunities`}
+                  {selectedFilter === 'all' 
+                    ? 'All Market Opportunities' 
+                    : `${selectedFilter} Opportunities`}
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   Showing {filteredMarkets.length} of {markets.length} markets
@@ -154,25 +196,33 @@ const Index = () => {
               
               {filteredMarkets.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredMarkets.map((market) => <MarketCard key={market.Rank} market={market} />)}
+                  {filteredMarkets.map((market) => (
+                    <MarketCard key={market.Rank} market={market} />
+                  ))}
                 </div>
               ) : (
                 <div className="text-center py-12">
                   <AlertCircle className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No markets found with the selected filter</p>
+                  <p className="text-muted-foreground">
+                    No markets found with the selected filter
+                  </p>
                 </div>
               )}
-              <StatisticsCharts markets={markets} />
             </div>
+            
+            {/* Statistics Charts */}
+            <StatisticsCharts markets={markets} />
           </>
         )}
 
         {/* Empty State */}
-        {markets.length === 0 && !loading && (
+        {markets.length === 0 && !initialLoading && (
           <div className="text-center py-12">
             <Target className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-xl font-semibold mb-2">No Data Loaded</h3>
-            <p className="text-muted-foreground">Paste your CSV data above to get started with market analysis</p>
+            <p className="text-muted-foreground">
+              Run a custom job to get started with market analysis
+            </p>
           </div>
         )}
       </main>
