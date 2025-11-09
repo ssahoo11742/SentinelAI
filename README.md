@@ -49,23 +49,40 @@ Sentinel-AI acts as a 24/7 market analyst that:
 ### System Architecture
 
 ```mermaid
-flowchart TB
-    A[Prediction Markets] -->|Markets fetched| B[Sentinel-AI Core]
-    C[News Sources] -->|Articles processed| B
-    B --> D{Semantic Matching}
-    D --> E[Probability Extraction]
-    D --> F[Sentiment Analysis]
-    E --> G[Signal Fusion]
-    F --> G
-    G --> H{Validation Engine}
-    H -->|Pass| I[Alpha Opportunities]
-    H -->|Reject| J[False Positives]
-    I --> K[Trading Recommendations]
+graph TD
+    A[News<br/>NewsDT<br/>Web Scraping] --> B[Core<br/>FastAPI<br/>Python]
+    C[Markets<br/>Polymarket<br/>Manifold APIs] --> B
     
-    style B fill:#4a90e2
-    style G fill:#f39c12
-    style H fill:#e74c3c
-    style I fill:#2ecc71
+    B --> D[Matching<br/>Sentence<br/>Transformers]
+    
+    D -->|Relevant| E[Sentiment<br/>BART<br/>Zero-shot]
+    D -->|Relevant| F[Probability<br/>Regex +<br/>spaCy NER]
+    D -->|Irrelevant<br/>Articles| G[ Discard ]
+    
+    E -->|Valid<br/>Context| H[Fusion<br/>Weighted<br/>Average]
+    F -->|Invalid<br/>Context| I[ Discard ]
+    F -->|Valid| H
+    
+    H --> J{Validation<br/>6-Stage +<br/>Manifold Bias}
+    
+    J -->|~95%<br/>Rejected| K[Filtered Out<br/>Low edge<br/>Weak markets<br/>Weak signals]
+    J -->|Pass| L[Opportunities<br/>Top<br/>Confidence<br/>Ranked]
+    
+    L --> M[Recommendations<br/>Kelly Sizing<br/>CSV Export]
+    
+    style A fill:#2c3e50,color:#fff
+    style C fill:#34495e,color:#fff
+    style B fill:#3498db,color:#fff
+    style D fill:#9b59b6,color:#fff
+    style E fill:#16a085,color:#fff
+    style F fill:#27ae60,color:#fff
+    style G fill:#ecf0f1,stroke:#95a5a6,color:#000
+    style I fill:#ecf0f1,stroke:#95a5a6, color:#000
+    style H fill:#f39c12,color:#fff
+    style J fill:#e74c3c,color:#fff
+    style K fill:#7f8c8d,color:#fff
+    style L fill:#2ecc71,color:#fff
+    style M fill:#1abc9c,color:#fff
 ```
 
 ### Three-Layer Intelligence Architecture
