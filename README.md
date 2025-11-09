@@ -19,6 +19,7 @@
 ---
 Made for Hack-Nation 2025. Submission files, presentation slides,  PDF report, Tech video, Demo video and screen shots in [submission folder](https://github.com/ssahoo11742/SentinelAI/tree/main/submission)
 
+Live LinkL : [Sentinel-AI](https://sentinel-ai-web.netlify.app/)
 ## 🎯 Project Description
 
 Prediction markets like Polymarket and Manifold allow users to bet on everything from elections to AI releases. **But these markets aren't always efficient.**
