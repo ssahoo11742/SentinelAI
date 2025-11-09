@@ -1,1 +1,1 @@
-Watchtower Trends Ai
+Sentinel AI
