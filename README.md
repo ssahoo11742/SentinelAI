@@ -50,25 +50,25 @@ Sentinel-AI acts as a 24/7 market analyst that:
 
 ```mermaid
 graph TD
-    A[News<br/>NewsDT<br/>Web Scraping] --> B[Core<br/>FastAPI<br/>Python]
-    C[Markets<br/>Polymarket<br/>Manifold APIs] --> B
+    A[News<br/>- NewsAPI<br/>- Web Scraping] --> B[Core<br/>- FastAPI<br/>- Python]
+    C[Markets<br/>- Polymarket<br/>- Manifold APIs] --> B
     
-    B --> D[Matching<br/>Sentence<br/>Transformers]
+    B --> D[Matching<br/>- Sentence<br/>Transformers]
     
-    D -->|Relevant| E[Sentiment<br/>BART<br/>Zero-shot]
-    D -->|Relevant| F[Probability<br/>Regex +<br/>spaCy NER]
+    D -->|Relevant| E[Sentiment<br/>- BART<br/>- Zero-shot]
+    D -->|Relevant| F[Probability<br/>- Regex<br/>- spaCy NER]
     D -->|Irrelevant<br/>Articles| G[ Discard ]
     
-    E -->|Valid<br/>Context| H[Fusion<br/>Weighted<br/>Average]
+    E -->|Valid<br/>Context| H[Fusion<br/>- Weighted<br/>Average]
     F -->|Invalid<br/>Context| I[ Discard ]
     F -->|Valid| H
     
-    H --> J{Validation<br/>6-Stage +<br/>Manifold Bias}
+    H --> J{Validation<br/>- 6-Stage<br/>- Manifold Bias}
     
-    J -->|~95%<br/>Rejected| K[Filtered Out<br/>Low edge<br/>Weak markets<br/>Weak signals]
-    J -->|Pass| L[Opportunities<br/>Top<br/>Confidence<br/>Ranked]
+    J -->|~95%<br/>Rejected| K[Filtered Out<br/>- Low edge<br/>- Weak markets<br/>- Weak signals]
+    J -->|Pass| L[Opportunities<br/>- Top<br/>Confidence<br/>- Ranked]
     
-    L --> M[Recommendations<br/>Kelly Sizing<br/>CSV Export]
+    L --> M[Recommendations<br/>- Kelly Sizing<br/>- CSV Export]
     
     style A fill:#2c3e50,color:#fff
     style C fill:#34495e,color:#fff
