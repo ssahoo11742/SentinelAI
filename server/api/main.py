@@ -13,7 +13,7 @@ from pipeline import pipeline  # direct import
 # CONFIG
 # ---------------------------
 SUPABASE_URL = "https://uxrdywchpcwljsteomtn.supabase.co"
-SUPABASE_KEY = "YOUR_SUPABASE_KEY"  # replace with secure env var in production
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4cmR5d2NocGN3bGpzdGVvbXRuIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjEyMDUzMywiZXhwIjoyMDc3Njk2NTMzfQ.jaQvrFqm4wTOyS_XxaUzCM1REtEyh-9Sj1EDFNjKJ8g"  # replace with secure env var in production
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "output")
 STORAGE_BUCKET = "sentinel_reports"
 

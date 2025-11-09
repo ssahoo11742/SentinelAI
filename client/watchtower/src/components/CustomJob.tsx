@@ -25,7 +25,7 @@ export const CustomJobForm = ({ currentJobId, onJobStarted, onJobCompleted }: Cu
 
     const checkJobStatus = async () => {
       try {
-        const res = await fetch("https://sentinelai-xnfh.onrender.com/jobs");
+        const res = await fetch("http://localhost:8000/jobs");
         const jobs = await res.json();
         const job = jobs.find((j: any) => j.id === currentJobId);
         
@@ -51,7 +51,7 @@ export const CustomJobForm = ({ currentJobId, onJobStarted, onJobCompleted }: Cu
         extra_args: extraArgs.split(" ").filter((a) => a),
       };
 
-      const res = await fetch("https://sentinelai-xnfh.onrender.com/custom", {
+      const res = await fetch("http://localhost:8000/custom", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
