@@ -1,3 +1,5 @@
+<img width="1212" height="679" alt="Screenshot 2025-11-08 194927" src="https://github.com/user-attachments/assets/dc8b0837-4159-42b7-a4ef-3ceccf96e365" />
+
 #  Sentinel-AI: AI-Powered Prediction Market Intelligence
 
 <div align="center">
