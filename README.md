@@ -1573,88 +1573,13 @@ By using Sentinel-AI, you acknowledge and accept these terms.
 
 ### Project Maintainers
 
-**Lead Developer**: [Your Name]  
-**Email**: Sentinel-AI@example.com  
-**GitHub**: [@yourusername](https://github.com/yourusername)
+**Lead Developer**: Swayam Sahoo  
+**Email**: swayamsa01@gmail.com  
+**GitHub**: [@ssahoo11742](https://github.com/ssahoo11742)
 
-### Getting Help
 
-<table>
-<tr>
-<td>
-
-**🐛 Bug Reports**
-
-Found a bug?
-1. Check [existing issues](https://github.com/yourusername/Sentinel-AI/issues)
-2. Create new issue with reproduction steps
-3. Include logs, screenshots, environment details
-
-</td>
-<td>
-
-**💡 Feature Requests**
-
-Have an idea?
-1. Search [discussions](https://github.com/yourusername/Sentinel-AI/discussions)
-2. Start new discussion in "Ideas" category
-3. Explain use case and expected behavior
-
-</td>
-</tr>
-<tr>
-<td>
-
-**❓ Questions**
-
-Need help?
-1. Check [documentation](docs/)
-2. Search [GitHub Discussions](https://github.com/yourusername/Sentinel-AI/discussions)
-3. Ask in "Q&A" category
-
-</td>
-<td>
-
-**🤝 Contributions**
-
-Want to contribute?
-1. Read [CONTRIBUTING.md](CONTRIBUTING.md)
-2. Fork repository
-3. Submit pull request
-
-</td>
-</tr>
-</table>
-
-### Response Times
-
-- **Critical bugs**: 24-48 hours
-- **Feature requests**: 1-2 weeks
-- **General questions**: 3-5 days
-- **Pull requests**: 5-7 days
-
----
 
 <div align="center">
 
-## ⭐ Star History
-
-If Sentinel-AI helps you find alpha, consider starring the repo!
-
----
-
-**Built with 🧠 for HackNation 2025 - VC Big Bets Track**
-
-*Where news meets numbers, and inefficiency meets opportunity*
-
-[⭐ Star this repo](https://github.com/yourusername/Sentinel-AI) • [🐛 Report bug](https://github.com/yourusername/Sentinel-AI/issues) • [💡 Request feature](https://github.com/yourusername/Sentinel-AI/discussions) • [📖 Read docs](docs/)
-
----
-
-**"The market can stay irrational longer than you can stay solvent."**  
-*— John Maynard Keynes*
-
-**"But Sentinel-AI can stay rational longer than the market can stay irrational."**  
-*— Us, probably*
 
 </div>
