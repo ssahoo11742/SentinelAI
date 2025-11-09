@@ -1,4 +1,7 @@
-# 🔥 Sentinel-AI: AI-Powered Prediction Market Intelligence
+<img width="1212" height="679" alt="Screenshot 2025-11-08 194927" src="https://github.com/user-attachments/assets/ea504130-7cac-430e-9b48-4a3a8dc4890a" />
+
+
+#  Sentinel-AI: AI-Powered Prediction Market Intelligence
 
 <div align="center">
 
