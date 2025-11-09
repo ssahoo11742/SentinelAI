@@ -4,7 +4,7 @@ import { MarketCard } from '@/components/MarketCard';
 import { StatsCard } from '@/components/StatsCard';
 import { FilterBar } from '@/components/FilterBar';
 import { StatisticsCharts } from '@/components/StatisticsCharts';
-import { TrendingUp, Target, AlertCircle, BarChart3 } from 'lucide-react';
+import { TrendingUp, Target, AlertCircle, BarChart3, Shield } from 'lucide-react';
 import { getRecommendationType } from '@/utils/csvParser';
 import Papa from 'papaparse';
 import { CustomJobForm } from '@/components/CustomJob';
@@ -20,7 +20,7 @@ const Index = () => {
   const fetchLatestReport = async (isInitial = false) => {
     if (isInitial) setInitialLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/jobs");
+      const res = await fetch("https://sentinelai-xnfh.onrender.com/jobs");
       const jobs = await res.json();
 
       const latest = jobs.find((j: any) => j.status === "completed" && j.storage_path);
@@ -115,10 +115,12 @@ const Index = () => {
         <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-primary/10">
-              <Target className="w-6 h-6 text-primary" />
+              <Shield className="w-8 h-8 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold">Prediction Market Dashboard</h1>
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                Sentinel-AI
+              </h1>
               <p className="text-sm text-muted-foreground">
                 AI-powered market inefficiency detector
               </p>
@@ -160,7 +162,7 @@ const Index = () => {
               />
               <StatsCard
                 title="High Confidence"
-                value={"High"}
+                value={stats.highConfidence}
                 icon={Target}
                 subtitle=">60% confidence"
               />
@@ -179,6 +181,7 @@ const Index = () => {
               onFilterChange={setSelectedFilter}
               counts={filterCounts}
             />
+
 
 
             {/* Markets Grid */}
@@ -209,11 +212,10 @@ const Index = () => {
                 </div>
               )}
             </div>
-            
-            {/* Statistics Charts */}
-            <StatisticsCharts markets={markets} />
           </>
         )}
+                    {/* Statistics Charts */}
+            <StatisticsCharts markets={markets} />
 
         {/* Empty State */}
         {markets.length === 0 && !initialLoading && (
