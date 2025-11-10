@@ -383,10 +383,13 @@ def display_market_opportunities(topic_markets: Dict, topic_model) -> None:
         print(f"   → Recalibrated confidence: {match['confidence']:.1%}")
 
 
+
 def export_market_opportunities(topic_markets: Dict, topic_model, output_dir: str = None):
     """Export opportunities"""
     import csv
     from datetime import datetime
+    import os
+
     import os
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
@@ -401,8 +404,19 @@ def export_market_opportunities(topic_markets: Dict, topic_model, output_dir: st
 
     print(f"\n📊 Exporting to {filepath}...")
 
+
+    # Ensure output directory exists and build full path
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        filepath = os.path.join(output_dir, filename)
+    else:
+        filepath = filename
+
+    print(f"\n📊 Exporting to {filepath}...")
+
     flat = [(tid, m) for tid, markets in topic_markets.items() for m in markets]
     flat.sort(key=lambda x: x[1]["alpha_score"], reverse=True)
+
 
     with open(filepath, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
@@ -414,9 +428,11 @@ def export_market_opportunities(topic_markets: Dict, topic_model, output_dir: st
             'Validated'
         ])
 
+
         for rank, (tid, match) in enumerate(flat, 1):
             market = match['market']
             sd = match['signal_data']
+
 
             writer.writerow([
                 rank,
@@ -435,5 +451,5 @@ def export_market_opportunities(topic_markets: Dict, topic_model, output_dir: st
                 f"{market.get('hours_until_close', 0):.1f}",
                 'YES'  # All exported opportunities passed validation
             ])
-    
-    print(f"✅ Exported {len(flat)} validated opportunities")
+
+    print(f"✅ Exported {len(flat)} validated opportunities to {filepath}")
