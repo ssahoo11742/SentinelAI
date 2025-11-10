@@ -10,7 +10,7 @@ nltk.download('stopwords', quiet=True)
 STOPWORDS = set(stopwords.words('english'))
 
 # API Configuration
-NEWSAPI_KEY = '0c6458185614471e85f31fd67f473e69'
+NEWSAPI_KEY = '0c6458185614471e85f31fd67f473e69' # Hidden for security
 TO_DATE = datetime.now().date()
 FROM_DATE = TO_DATE - timedelta(days=5)  # Shorter window for more relevant news
 

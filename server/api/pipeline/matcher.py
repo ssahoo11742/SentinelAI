@@ -14,7 +14,7 @@ import numpy as np
 from typing import List, Dict, Optional
 from transformers import pipeline
 import torch
-from .debug import diagnose_filtering_cascade
+
 
 # Global classifier
 _classifier = None
@@ -231,9 +231,6 @@ def match_markets_to_topics(
     classifier = _get_classifier()
     
     opportunities = []
-    if False:  # Set to False to disable diagnostics
-        diagnose_filtering_cascade(markets, articles, classifier)
-        return {}  # Exit early after diagnostics
     print(f"\n🔍 Analyzing {len(markets)} markets...")
     
     for idx, market in enumerate(markets):
@@ -386,20 +383,28 @@ def display_market_opportunities(topic_markets: Dict, topic_model) -> None:
         print(f"   → Recalibrated confidence: {match['confidence']:.1%}")
 
 
-def export_market_opportunities(topic_markets: Dict, topic_model, filename: str = None):
+def export_market_opportunities(topic_markets: Dict, topic_model, output_dir: str = None):
     """Export opportunities"""
     import csv
     from datetime import datetime
-    
+    import os
+
     timestamp = datetime.now().strftime("%Y%m%d_%H%M")
     filename = f"alphahunt_v3.1_validated_{timestamp}.csv"
-    
-    print(f"\n📊 Exporting to {filename}...")
-    
+
+    # Ensure output directory exists and build full path
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        filepath = os.path.join(output_dir, filename)
+    else:
+        filepath = filename
+
+    print(f"\n📊 Exporting to {filepath}...")
+
     flat = [(tid, m) for tid, markets in topic_markets.items() for m in markets]
     flat.sort(key=lambda x: x[1]["alpha_score"], reverse=True)
-    
-    with open(filename, 'w', newline='', encoding='utf-8') as f:
+
+    with open(filepath, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow([
             'Rank', 'Platform', 'Market_Question', 'Market_URL',
@@ -408,11 +413,11 @@ def export_market_opportunities(topic_markets: Dict, topic_model, filename: str 
             'Num_Prob_Mentions', 'Num_Articles', 'Hours_Until_Close',
             'Validated'
         ])
-        
+
         for rank, (tid, match) in enumerate(flat, 1):
             market = match['market']
             sd = match['signal_data']
-            
+
             writer.writerow([
                 rank,
                 market['platform'],
@@ -430,5 +435,5 @@ def export_market_opportunities(topic_markets: Dict, topic_model, filename: str 
                 f"{market.get('hours_until_close', 0):.1f}",
                 'YES'  # All exported opportunities passed validation
             ])
-    
-    print(f"✅ Exported {len(flat)} validated opportunities")
+
+    print(f"✅ Exported {len(flat)} validated opportunities to {filepath}")
