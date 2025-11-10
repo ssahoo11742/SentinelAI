@@ -435,5 +435,5 @@ def export_market_opportunities(topic_markets: Dict, topic_model, output_dir: st
                 f"{market.get('hours_until_close', 0):.1f}",
                 'YES'  # All exported opportunities passed validation
             ])
-
-    print(f"✅ Exported {len(flat)} validated opportunities to {filepath}")
+    
+    print(f"✅ Exported {len(flat)} validated opportunities")
