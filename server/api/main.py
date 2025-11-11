@@ -4,12 +4,9 @@ from pydantic import BaseModel
 import paramiko
 import logging
 import os
-import sys
-import time
 from typing import List
-import tempfile
 from dotenv import load_dotenv
-
+import uvicorn
 load_dotenv()
 
 # ---------------------------
@@ -26,7 +23,7 @@ SSH_HOST = "129.213.118.220"
 SSH_USER = "ubuntu"
 SSH_KEY_PATH = r"./ssh-key-watchtower.key"
 REMOTE_PIPELINE_PATH = "~/SentinelAI/server/api/pipeline/pipeline.py"
-REMOTE_OUTPUT_DIR = "~/SentinelAI/server/api/output"
+REMOTE_OUTPUT_DIR = "~/SentinelAI/server/api/"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -103,9 +100,8 @@ def execute_remote_pipeline(ssh_client, config: CustomRun) -> str:
     # Build the command to run the pipeline
     platforms_str = ",".join(config.platforms)
     command = (
-  f"cd ~/SentinelAI/server/api && "
+        f"cd ~/SentinelAI/server/api && "
         f"python3 -m pipeline.pipeline "
-        f"--platforms {platforms_str} "
         f"--min-liquidity {config.min_liquidity} "
         f"--max-hours {config.max_hours}"
     )
@@ -184,6 +180,7 @@ def run_tracked_pipeline(job_id: str, config: CustomRun):
         # Clean up local file
         try:
             os.remove(local_csv_path)
+            logger.info(f"[JOB:{job_id}] Local CSV deleted successfully")
         except Exception as e:
             logger.warning(f"Failed to clean up local file: {e}")
         
@@ -194,6 +191,8 @@ def run_tracked_pipeline(job_id: str, config: CustomRun):
         if ssh_client:
             ssh_client.close()
             logger.info(f"[JOB:{job_id}] SSH connection closed")
+        
+
 
 # ---------------------------
 # ROUTES
@@ -260,6 +259,5 @@ async def test_ssh():
 # RUN SERVER
 # ---------------------------
 if __name__ == "__main__":
-    import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
