@@ -25,7 +25,7 @@ export const CustomJobForm = ({ currentJobId, onJobStarted, onJobCompleted }: Cu
 
     const checkJobStatus = async () => {
       try {
-        const res = await fetch("https://sentinel-122080578001.northamerica-northeast1.run.app/jobs");
+        const res = await fetch("https://sentinel-ai-km27.onrender.com/jobs");
         const jobs = await res.json();
         const job = jobs.find((j: any) => j.id === currentJobId);
         
@@ -51,7 +51,7 @@ export const CustomJobForm = ({ currentJobId, onJobStarted, onJobCompleted }: Cu
         extra_args: extraArgs.split(" ").filter((a) => a),
       };
 
-      const res = await fetch("https://sentinel-122080578001.northamerica-northeast1.run.app/custom", {
+      const res = await fetch("https://sentinel-ai-km27.onrender.com/custom", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
